@@ -1,0 +1,186 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "binary"
+}
+
+// Define your database schema here
+
+enum Role {
+  JOB_SEEKER
+  COMPANY_RECRUITER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum JobStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+// Ny enum för ansökningsstatus
+enum ApplicationStatus {
+  PENDING
+  REVIEWED
+  ACCEPTED
+  REJECTED
+}
+
+model JobSeeker {
+  id Int @id @default(autoincrement())
+
+  email     String @unique
+  firstName String
+  lastName  String
+  password  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  role Role @default(JOB_SEEKER)
+
+  phoneNumber       String?
+  city              String?
+  country           String?
+  languages         String[]
+  skills            String[]
+  bio               String?
+  portfolioLink     String?
+  cv                Bytes?
+  profilePicture    Bytes?
+  personalStatement String?
+
+  // ! Extra 
+  accountCompletionRate Int        @default(0)
+  sentMessages          Messages[] @relation("JobSeekerSentMessages")
+  receivedMessages      Messages[] @relation("JobSeekerReceivedMessages")
+
+  // --- NYA RELATIONER FÖR TRUSTBEE ---
+  applications   Application[]
+  savedJobs      SavedJob[]
+  savedCompanies SavedCompany[]
+}
+
+// ? login is password and email
+
+model CompanyRecruiter {
+  id                 Int        @id @default(autoincrement())
+  // ! register is email, password, company name, organization number, phone number, description OPTIONAL, logo url OPTIONAL
+  email              String     @unique
+  companyName        String
+  password           String
+  organizationNumber String     @unique
+  description        String?
+  phoneNumber        String     @unique
+  logoUrl            String?
+  role               Role       @default(COMPANY_RECRUITER)
+  jobs               Job[]
+  sentMessages       Messages[] @relation("RecruiterSentMessages")
+  receivedMessages   Messages[] @relation("RecruiterReceivedMessages")
+
+  city     String?
+  country  String?
+  industry String? // t.ex. "IT", "Healthcare"
+
+  // --- NYA RELATIONER FÖR TRUSTBEE ---
+  savedBySeekers SavedCompany[]
+}
+
+model Job {
+  id          Int              @id @default(autoincrement())
+  company     CompanyRecruiter @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId   Int
+  title       String
+  description String
+  status      JobStatus        @default(ACTIVE)
+  expiresAt   DateTime
+  webpage_url String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  // --- NYA FÄLT FÖR FILTRERING ---
+  city     String?
+  country  String?
+  category String? // t.ex. "IT", "Healthcare"
+
+  // --- NYA RELATIONER FÖR TRUSTBEE ---
+  applications Application[]
+  savedBy      SavedJob[]
+}
+
+model Messages {
+  id      Int    @id @default(autoincrement())
+  content String
+
+  // * Gjorda frivilliga (?) 
+  senderJobSeekerId Int?
+  senderJobSeeker   JobSeeker? @relation("JobSeekerSentMessages", fields: [senderJobSeekerId], references: [id])
+
+  senderRecruiterId Int?
+  senderRecruiter   CompanyRecruiter? @relation("RecruiterSentMessages", fields: [senderRecruiterId], references: [id], onDelete: Cascade)
+
+  receiverJobSeekerId Int?
+  receiverJobSeeker   JobSeeker? @relation("JobSeekerReceivedMessages", fields: [receiverJobSeekerId], references: [id])
+
+  receiverRecruiterId Int?
+  receiverRecruiter   CompanyRecruiter? @relation("RecruiterReceivedMessages", fields: [receiverRecruiterId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+// ==========================================
+// NYA MODELLER FÖR APPLIKATIONEN
+// ==========================================
+
+// Hanterar när en arbetssökande ansöker till ett jobb
+model Application {
+  id        Int               @id @default(autoincrement())
+  status    ApplicationStatus @default(PENDING)
+  appliedAt DateTime          @default(now())
+
+  jobSeekerId Int
+  jobId       Int
+
+  jobSeeker JobSeeker @relation(fields: [jobSeekerId], references: [id], onDelete: Cascade)
+  job       Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  // En användare kan bara ansöka till samma jobb en gång
+  @@unique([jobSeekerId, jobId])
+}
+
+// Hanterar när en arbetssökande bokmärker ett jobb
+model SavedJob {
+  id      Int      @id @default(autoincrement())
+  savedAt DateTime @default(now())
+
+  jobSeekerId Int
+  jobId       Int
+
+  jobSeeker JobSeeker @relation(fields: [jobSeekerId], references: [id], onDelete: Cascade)
+  job       Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([jobSeekerId, jobId])
+}
+
+// Hanterar när en arbetssökande bokmärker ett företag (Company Profile)
+model SavedCompany {
+  id      Int      @id @default(autoincrement())
+  savedAt DateTime @default(now())
+
+  jobSeekerId Int
+  companyId   Int
+
+  jobSeeker JobSeeker        @relation(fields: [jobSeekerId], references: [id], onDelete: Cascade)
+  company   CompanyRecruiter @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([jobSeekerId, companyId])
+}
