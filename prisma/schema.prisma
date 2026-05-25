@@ -82,6 +82,7 @@ model CompanyRecruiter {
   description        String?
   phoneNumber        String     @unique
   logoUrl            String?
+  adminAccessCode    String?    @unique
   role               Role       @default(COMPANY_RECRUITER)
   jobs               Job[]
   sentMessages       Messages[] @relation("RecruiterSentMessages")
@@ -183,4 +184,14 @@ model SavedCompany {
   company   CompanyRecruiter @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@unique([jobSeekerId, companyId])
+}
+
+model SupportTicket {
+  id          String   @id @default(cuid())
+  firstname   String
+  lastname    String
+  email       String
+  message     String
+  sendAsEmail Boolean  @default(false)
+  createdAt   DateTime @default(now())
 }

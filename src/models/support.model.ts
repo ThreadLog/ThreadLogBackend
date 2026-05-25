@@ -4,5 +4,6 @@ export interface SupportTicket {
   lastname: string;
   email: string;
   message: string;
+  sendAsEmail?: boolean;
   createdAt?: Date;
 }

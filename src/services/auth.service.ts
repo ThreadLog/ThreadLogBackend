@@ -8,8 +8,15 @@ import { AppError } from "../utils/app.error.js";
 import {
   LoginCompanyRecruiterTypeZ,
   RegisterCompanyRecruiterTypeZ,
+  LoginAdminTypeZ,
+  RegisterAdminTypeZ,
+  LoginAdminByCodeTypeZ,
 } from "../models/companyrecruiter.model.js";
 import jwt, { SignOptions } from "jsonwebtoken";
+import crypto from "node:crypto";
+
+const generateAdminAccessCode = () =>
+  crypto.randomBytes(4).toString("hex").toUpperCase();
 
 export const registerJobSeekerService = async (
   data: RegisterJobSeekerTypeZ,
@@ -161,4 +168,142 @@ export const logInCompanyRecruiterService = async (
 
   const { password, ...companyRecruiterExcludingPassword } = companyRecruiter; // this is to exclude the password from the returned object
   return { ...companyRecruiterExcludingPassword, token };
+};
+
+export const registerAdminService = async (data: RegisterAdminTypeZ) => {
+  const adminAccessCode = data.adminAccessCode ?? generateAdminAccessCode();
+
+  const existingAdmin = await prisma.companyRecruiter.findUnique({
+    where: { email: data.companyEmail },
+  });
+
+  if (existingAdmin) {
+    throw new AppError("Admin with that email already exists", 409);
+  }
+
+  const hashedPassword = await bcrypt.hash(data.password, 12);
+
+  return prisma.companyRecruiter.create({
+    data: {
+      email: data.companyEmail,
+      companyName: data.companyName,
+      password: hashedPassword,
+      organizationNumber: data.organizationNumber,
+      phoneNumber: data.companyPhone,
+      description: data.description,
+      role: "ADMIN",
+      adminAccessCode,
+    },
+    select: {
+      id: true,
+      email: true,
+      companyName: true,
+      organizationNumber: true,
+      phoneNumber: true,
+      role: true,
+      adminAccessCode: true,
+    },
+  });
+};
+
+export const logInAdminService = async (data: LoginAdminTypeZ) => {
+  const admin = await prisma.companyRecruiter.findUnique({
+    where: { email: data.email },
+  });
+
+  if (!admin || admin.role !== "ADMIN") {
+    throw new AppError("Invalid email or password", 401);
+  }
+
+  const isPasswordValid = await bcrypt.compare(data.password, admin.password);
+
+  if (!isPasswordValid) {
+    throw new AppError("Invalid email or password", 401);
+  }
+
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    throw new AppError("JWT_SECRET not set", 500);
+  }
+
+  const expiresIn = (process.env.JWT_EXPIRES_IN ??
+    "1d") as SignOptions["expiresIn"];
+
+  const token = jwt.sign(
+    {
+      id: admin.id,
+      email: admin.email,
+      role: admin.role,
+    },
+    jwtSecret,
+    {
+      expiresIn,
+    },
+  );
+
+  const { password, ...adminExcludingPassword } = admin;
+  return { ...adminExcludingPassword, token };
+};
+
+export const logInAdminByCodeService = async (data: LoginAdminByCodeTypeZ) => {
+  const admin = await prisma.companyRecruiter.findUnique({
+    where: { email: data.email },
+  });
+
+  if (!admin || admin.role !== "ADMIN") {
+    throw new AppError("Invalid email or access code", 401);
+  }
+
+  if (
+    !admin.adminAccessCode ||
+    admin.adminAccessCode !== data.adminAccessCode
+  ) {
+    throw new AppError("Invalid email or access code", 401);
+  }
+
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    throw new AppError("JWT_SECRET not set", 500);
+  }
+
+  const expiresIn = (process.env.JWT_EXPIRES_IN ??
+    "1d") as SignOptions["expiresIn"];
+
+  const token = jwt.sign(
+    {
+      id: admin.id,
+      email: admin.email,
+      role: admin.role,
+    },
+    jwtSecret,
+    {
+      expiresIn,
+    },
+  );
+
+  const { password, ...adminExcludingPassword } = admin;
+  return { ...adminExcludingPassword, token };
+};
+
+export const getAdminAccessCodeService = async (adminId: number) => {
+  const admin = await prisma.companyRecruiter.findUnique({
+    where: { id: adminId },
+    select: {
+      id: true,
+      email: true,
+      companyName: true,
+      role: true,
+      adminAccessCode: true,
+    },
+  });
+
+  if (!admin || admin.role !== "ADMIN") {
+    throw new AppError("Admin not found", 404);
+  }
+
+  if (!admin.adminAccessCode) {
+    throw new AppError("Admin access code not set", 404);
+  }
+
+  return admin;
 };

@@ -5,6 +5,10 @@ import {
   RegisterJobSeeker,
   RegisterCompanyRecruiter,
   LogInCompanyRecruiter,
+  RegisterAdmin,
+  LogInAdmin,
+  LogInAdminByCode,
+  DownloadAdminAccessCode,
 } from "../controllers/auth.controller.js";
 import { validate } from "../middleware/validate.middleware.js";
 import {
@@ -14,7 +18,11 @@ import {
 import {
   registerJobRecruiterValidation,
   loginJobRecruiterValidation,
+  registerAdminValidation,
+  loginAdminValidation,
+  loginAdminByCodeValidation,
 } from "../models/companyrecruiter.model.js";
+import { protect, restrictTo } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
@@ -25,6 +33,18 @@ router.post(
 );
 router.post(
   "/loginjobseeker",
+  validate(logInJobSeekerValidation),
+  LogInJobSeeker,
+);
+
+router.post(
+  "/registeremployee",
+  validate(registerJobSeekerValidation),
+  RegisterJobSeeker,
+);
+
+router.post(
+  "/loginemployee",
   validate(logInJobSeekerValidation),
   LogInJobSeeker,
 );
@@ -41,6 +61,21 @@ router.post(
   LogInCompanyRecruiter,
 );
 
+router.post("/registeradmin", validate(registerAdminValidation), RegisterAdmin);
+
+router.post("/loginadmin", validate(loginAdminValidation), LogInAdmin);
+
+router.post(
+  "/loginadminbycode",
+  validate(loginAdminByCodeValidation),
+  LogInAdminByCode,
+);
+
+router.get(
+  "/admin-access-code",
+  protect,
+  restrictTo("ADMIN"),
+  DownloadAdminAccessCode,
+);
 
 export default router;
-

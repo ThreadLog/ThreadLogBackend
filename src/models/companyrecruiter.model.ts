@@ -49,7 +49,8 @@ export const updateJobRecruiterValidation = z.object({
       companyName: z.string().min(1, "Company name is required").optional(),
       organizationNumber: z
         .string()
-        .regex(/^\d{10}$/, "Organization number must be exactly 10 digits"),
+        .regex(/^\d{10}$/, "Organization number must be exactly 10 digits")
+        .optional(),
       phoneNumber: z
         .string()
         .min(12, "Phone number is too short")
@@ -57,12 +58,65 @@ export const updateJobRecruiterValidation = z.object({
         .regex(
           /^\+?(\d{1,3})?[-.\s]?\(?\d{1,4}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/,
           "Invalid phone number format",
-        ),
+        )
+        .optional(),
       description: z.string().optional(),
       logoUrl: z.string().url("Invalid logo URL").optional(),
       city: z.string().min(1, "City cannot be empty").optional(),
       country: z.string().min(1, "Country cannot be empty").optional(),
       industry: z.string().min(1, "Industry cannot be empty").optional(),
+    })
+    .strict(),
+});
+
+export const registerAdminValidation = z.object({
+  body: z
+    .object({
+      companyName: z.string().min(1, "Company name is required"),
+      organizationNumber: z
+        .string()
+        .regex(/^\d{10}$/, "Organization number must be exactly 10 digits"),
+      description: z.string().optional(),
+      adminAccessCode: z
+        .string()
+        .min(6, "Access code must be at least 6 characters")
+        .max(12, "Access code must be at most 12 characters")
+        .optional(),
+      companyPhone: z
+        .string()
+        .min(12, "Phone number is too short")
+        .max(15, "Phone number is too long")
+        .regex(
+          /^\+?(\d{1,3})?[-.\s]?\(?\d{1,4}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/,
+          "Invalid phone number format",
+        ),
+      companyEmail: z.email("Invalid email address"),
+      password: z
+        .string()
+        .min(8, "Password must be at least 8 characters long"),
+    })
+    .strict(),
+});
+
+export const loginAdminValidation = z.object({
+  body: z
+    .object({
+      email: z.email("Invalid email address"),
+      password: z
+        .string()
+        .min(8, "Password must be at least 8 characters long"),
+    })
+    .strict(),
+});
+
+export const loginAdminByCodeValidation = z.object({
+  body: z
+    .object({
+      email: z.email("Invalid email address"),
+      adminAccessCode: z
+        .string()
+        .min(6, "Access code must be at least 6 characters")
+        .max(12, "Access code must be at most 12 characters"),
     })
     .strict(),
 });
@@ -77,4 +131,14 @@ export type RegisterCompanyRecruiterTypeZ = z.infer<
 
 export type LoginCompanyRecruiterTypeZ = z.infer<
   typeof loginJobRecruiterValidation
+>["body"];
+
+export type RegisterAdminTypeZ = z.infer<
+  typeof registerAdminValidation
+>["body"];
+
+export type LoginAdminTypeZ = z.infer<typeof loginAdminValidation>["body"];
+
+export type LoginAdminByCodeTypeZ = z.infer<
+  typeof loginAdminByCodeValidation
 >["body"];

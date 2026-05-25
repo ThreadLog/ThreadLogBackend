@@ -1,0 +1,17 @@
+import { SupportTicketService } from "../services/support.services.js";
+export class SupportTicketController {
+    static async submit(req, res) {
+        try {
+            const { firstname, lastname, email, message, sendAsEmail = false, } = req.body;
+            if (!firstname || !lastname || !email || !message) {
+                return res.status(400).json({ error: "Missing fields" });
+            }
+            const result = await SupportTicketService.createTicket({ firstname, lastname, email, message }, sendAsEmail);
+            res.status(201).json(result);
+        }
+        catch (err) {
+            console.error(err);
+            res.status(500).json({ error: "Internal server error" });
+        }
+    }
+}
