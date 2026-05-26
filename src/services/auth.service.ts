@@ -29,7 +29,18 @@ export const registerJobSeekerService = async (
     throw new AppError("Job seeker with that email already exists", 409);
   }
 
-  // encrypt the password
+  let companyId: number | undefined;
+
+  if (data.adminAccessCode) {
+    const company = await prisma.companyRecruiter.findFirst({
+      where: { adminAccessCode: data.adminAccessCode },
+    });
+    if (!company) {
+      throw new AppError("Invalid company access code", 400);
+    }
+    companyId = company.id;
+  }
+
   const hashedPassword = await bcrypt.hash(data.password, 12);
 
   const createdJobSeeker = await prisma.jobSeeker.create({
@@ -38,17 +49,20 @@ export const registerJobSeekerService = async (
       lastName: data.lastName,
       email: data.email,
       password: hashedPassword,
+      companyId,
     },
     select: {
       id: true,
       firstName: true,
       lastName: true,
       email: true,
+      companyId: true,
     },
   });
 
   return createdJobSeeker;
 };
+
 export const logInJobSeekerService = async (data: LogInJobSeekerTypeZ) => {
   const jobSeeker = await prisma.jobSeeker.findUnique({
     where: { email: data.email },
@@ -67,6 +81,16 @@ export const logInJobSeekerService = async (data: LogInJobSeekerTypeZ) => {
     throw new AppError("Invalid email or password", 401);
   }
 
+  if (jobSeeker.companyId) {
+    const company = await prisma.companyRecruiter.findUnique({
+      where: { id: jobSeeker.companyId },
+    });
+
+    if (!company || company.adminAccessCode !== data.adminAccessCode) {
+      throw new AppError("Invalid company invite code", 401);
+    }
+  }
+
   const jwtSecret = process.env.JWT_SECRET;
   if (!jwtSecret) {
     throw new AppError("JWT_SECRET not set", 500);
@@ -80,6 +104,7 @@ export const logInJobSeekerService = async (data: LogInJobSeekerTypeZ) => {
       id: jobSeeker.id,
       email: jobSeeker.email,
       role: jobSeeker.role,
+      companyId: jobSeeker.companyId,
     },
     jwtSecret,
     {
@@ -102,7 +127,6 @@ export const registerCompanyRecruiterService = async (
     throw new AppError("Company recruiter with that email already exists", 409);
   }
 
-  // encrypt the password
   const hashedPassword = await bcrypt.hash(data.password, 12);
 
   return prisma.companyRecruiter.create({
@@ -126,7 +150,6 @@ export const registerCompanyRecruiterService = async (
 export const logInCompanyRecruiterService = async (
   data: LoginCompanyRecruiterTypeZ,
 ) => {
-  // compare the passed in email with the one in the database
   const companyRecruiter = await prisma.companyRecruiter.findUnique({
     where: { email: data.email },
   });
@@ -135,17 +158,15 @@ export const logInCompanyRecruiterService = async (
     throw new AppError("Invalid email or password", 401);
   }
 
-  // compare the passed in password with the one in the database
   const isPasswordValid = await bcrypt.compare(
     data.password,
-    companyRecruiter.password, // finds the password assigned to the email and compares it with the passed in password
+    companyRecruiter.password,
   );
 
   if (!isPasswordValid) {
     throw new AppError("Invalid email or password", 401);
   }
 
-  // add jwt token generation here
   const jwtSecret = process.env.JWT_SECRET;
   if (!jwtSecret) {
     throw new AppError("JWT_SECRET not set", 500);
@@ -159,6 +180,7 @@ export const logInCompanyRecruiterService = async (
       id: companyRecruiter.id,
       email: companyRecruiter.email,
       role: companyRecruiter.role,
+      companyId: companyRecruiter.id,
     },
     jwtSecret,
     {
@@ -166,7 +188,7 @@ export const logInCompanyRecruiterService = async (
     },
   );
 
-  const { password, ...companyRecruiterExcludingPassword } = companyRecruiter; // this is to exclude the password from the returned object
+  const { password, ...companyRecruiterExcludingPassword } = companyRecruiter;
   return { ...companyRecruiterExcludingPassword, token };
 };
 
@@ -234,6 +256,7 @@ export const logInAdminService = async (data: LoginAdminTypeZ) => {
       id: admin.id,
       email: admin.email,
       role: admin.role,
+      companyId: admin.id,
     },
     jwtSecret,
     {
@@ -274,6 +297,7 @@ export const logInAdminByCodeService = async (data: LoginAdminByCodeTypeZ) => {
       id: admin.id,
       email: admin.email,
       role: admin.role,
+      companyId: admin.id,
     },
     jwtSecret,
     {

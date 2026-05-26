@@ -27,17 +27,6 @@ import { protect, restrictTo } from "../middleware/auth.middleware.js";
 const router = Router();
 
 router.post(
-  "/registerjobseeker",
-  validate(registerJobSeekerValidation),
-  RegisterJobSeeker,
-);
-router.post(
-  "/loginjobseeker",
-  validate(logInJobSeekerValidation),
-  LogInJobSeeker,
-);
-
-router.post(
   "/registeremployee",
   validate(registerJobSeekerValidation),
   RegisterJobSeeker,

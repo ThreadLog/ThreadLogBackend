@@ -76,13 +76,20 @@ export const getJobSeekerByIdService = async (id: number) => {
       id: true,
       firstName: true,
       lastName: true,
-      profilePicture: true,
+      email: true,
+      phoneNumber: true,
       city: true,
+      country: true,
       languages: true,
       skills: true,
       bio: true,
       portfolioLink: true,
+      personalStatement: true,
+      profilePicture: true,
       cv: true,
+      company: {
+        select: { adminAccessCode: true, companyName: true },
+      },
     },
   });
   if (!jobSeeker) {
@@ -128,6 +135,16 @@ export const updateJobSeekerByIdService = async (
       password: hashedPassword,
       cv: cvBuffer,
       personalStatement: data.personalStatement,
+      phoneNumber: data.phoneNumber,
+      city: data.city,
+      country: data.country,
+      bio: data.bio,
+      portfolioLink: data.portfolioLink,
+      languages: data.languages,
+      skills: data.skills,
+      profilePicture: data.profilePicture
+        ? Buffer.from(data.profilePicture.split(",")[1] || data.profilePicture, "base64")
+        : undefined,
     },
   });
   return updatedJobSeeker;

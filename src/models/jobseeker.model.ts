@@ -7,6 +7,7 @@ export const registerJobSeekerValidation = z.object({
       lastName: z.string("Please enter a valid last name").min(2),
       email: z.email("Please enter a valid email"),
       password: z.string("Please enter a valid password").min(8),
+      adminAccessCode: z.string().optional(),
       cv: z.string("Please enter a valid CV").optional(),
       personalStatement: z
         .string("Please enter a valid personal statement")
@@ -20,6 +21,7 @@ export const logInJobSeekerValidation = z.object({
     .object({
       email: z.email("Please enter a valid email"),
       password: z.string("Please enter a valid password").min(8),
+      adminAccessCode: z.string().optional(),
     })
     .strict(),
 });

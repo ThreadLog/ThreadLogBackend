@@ -98,6 +98,7 @@ export const GetCompanyRecruiterByIdService = async (id: number) => {
       city: true,
       country: true,
       industry: true,
+      adminAccessCode: true,
       _count: {
         select: { jobs: { where: { status: "ACTIVE" } } },
       },

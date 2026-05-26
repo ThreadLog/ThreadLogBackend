@@ -7,8 +7,9 @@ declare global {
   namespace Express {
     interface Request {
       user?: {
-        id: number; // Använder number eftersom ditt ID i databasen är en Int
+        id: number;
         role: string;
+        companyId: number | null;
       };
     }
   }
@@ -30,7 +31,7 @@ export const protect = async (
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
     const payload = decoded as JwtPayload;
 
-    req.user = { id: payload.id, role: payload.role };
+    req.user = { id: payload.id, role: payload.role, companyId: payload.companyId ?? null };
     next();
   } catch (error) {
     console.log(error);

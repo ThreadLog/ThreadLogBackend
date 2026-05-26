@@ -1,4 +1,5 @@
 import express, { type Request, type Response } from "express";
+import cors from "cors";
 import jobSeekerRoutes from "./routes/jobseeker.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
@@ -8,10 +9,12 @@ import messageRoutes from "./routes/message.routes.js";
 import applicationRoutes from "./routes/application.routes.js";
 import supportRoutes from "./routes/support.routes.js";
 import savedRoutes from "./routes/saved.routes.js";
+import workspaceRoutes from "./routes/workspace.routes.js";
 
 export const createApp = () => {
   const app = express();
 
+  app.use(cors());
   app.use(express.json());
 
   // job seeker routes
@@ -33,6 +36,9 @@ export const createApp = () => {
 
   // support routes
   app.use("/api", supportRoutes);
+
+  // workspace routes (company-isolated)
+  app.use("/api/workspace", workspaceRoutes);
 
   app.use(errorHandler);
 
