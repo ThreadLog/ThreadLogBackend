@@ -1,0 +1,1516 @@
+{
+  "info": {
+    "_postman_id": "b8d5d1c0-3f2b-4f31-8f33-6f8d6e1b3d10",
+    "name": "ThreadLogBackend API",
+    "description": "Import this collection together with the environment file. It covers the public browse endpoints, auth flows, and the protected recruiter, seeker, messaging, application, saved, support, and workspace routes.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Simple liveness probe for the API."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Job Seeker",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Amina\",\n  \"lastName\": \"Hassan\",\n  \"email\": \"amina.jobseeker@example.com\",\n  \"password\": \"Password123!\",\n  \"personalStatement\": \"Open to backend and platform roles.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registeremployee",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "registeremployee"]
+            },
+            "description": "Create a job seeker account. Add adminAccessCode if the job seeker should be linked to a company."
+          }
+        },
+        {
+          "name": "Log In Job Seeker",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "try {",
+                  "  const response = pm.response.json();",
+                  "  const container = response.jobseeker || response.data || response;",
+                  "  const token = container && (container.token || container.accessToken || container.jwt);",
+                  "  if (token) {",
+                  "    pm.collectionVariables.set('authToken', token);",
+                  "  }",
+                  "  if (container && container.id !== undefined && container.id !== null) {",
+                  "    pm.collectionVariables.set('currentUserId', String(container.id));",
+                  "  }",
+                  "  if (container && container.role) {",
+                  "    pm.collectionVariables.set('currentUserRole', container.role);",
+                  "  }",
+                  "} catch (error) {",
+                  "  console.warn('Could not parse login response for token extraction', error);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"amina.jobseeker@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/loginemployee",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "loginemployee"]
+            },
+            "description": "Log in a job seeker and save the returned JWT to authToken."
+          }
+        },
+        {
+          "name": "Register Company Recruiter",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"recruiter@example.com\",\n  \"password\": \"Password123!\",\n  \"companyName\": \"Acme Recruiting AB\",\n  \"organizationNumber\": \"5566778899\",\n  \"phoneNumber\": \"+46 70 123 45 67\",\n  \"description\": \"Hiring engineering and product talent.\",\n  \"logoUrl\": \"https://example.com/logo.png\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registercompanyrecruiter",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "registercompanyrecruiter"]
+            },
+            "description": "Create a company recruiter account."
+          }
+        },
+        {
+          "name": "Log In Company Recruiter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "try {",
+                  "  const response = pm.response.json();",
+                  "  const container = response.companyRecruiter || response.data || response;",
+                  "  const token = container && (container.token || container.accessToken || container.jwt);",
+                  "  if (token) {",
+                  "    pm.collectionVariables.set('authToken', token);",
+                  "  }",
+                  "  if (container && container.id !== undefined && container.id !== null) {",
+                  "    pm.collectionVariables.set('currentUserId', String(container.id));",
+                  "  }",
+                  "  if (container && container.role) {",
+                  "    pm.collectionVariables.set('currentUserRole', container.role);",
+                  "  }",
+                  "} catch (error) {",
+                  "  console.warn('Could not parse login response for token extraction', error);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"recruiter@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logincompanyrecruiter",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logincompanyrecruiter"]
+            },
+            "description": "Log in a company recruiter and save the returned JWT to authToken."
+          }
+        },
+        {
+          "name": "Register Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"ThreadLog HQ\",\n  \"organizationNumber\": \"1122334455\",\n  \"companyPhone\": \"+46 70 987 65 43\",\n  \"companyEmail\": \"admin@example.com\",\n  \"password\": \"Password123!\",\n  \"description\": \"Platform administrator account.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registeradmin",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "registeradmin"]
+            },
+            "description": "Create an admin account. The admin access code is generated unless provided."
+          }
+        },
+        {
+          "name": "Log In Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "try {",
+                  "  const response = pm.response.json();",
+                  "  const container = response.admin || response.data || response;",
+                  "  const token = container && (container.token || container.accessToken || container.jwt);",
+                  "  if (token) {",
+                  "    pm.collectionVariables.set('authToken', token);",
+                  "  }",
+                  "  if (container && container.id !== undefined && container.id !== null) {",
+                  "    pm.collectionVariables.set('currentUserId', String(container.id));",
+                  "  }",
+                  "  if (container && container.role) {",
+                  "    pm.collectionVariables.set('currentUserRole', container.role);",
+                  "  }",
+                  "} catch (error) {",
+                  "  console.warn('Could not parse login response for token extraction', error);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/loginadmin",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "loginadmin"]
+            },
+            "description": "Log in an admin and save the returned JWT to authToken."
+          }
+        },
+        {
+          "name": "Log In Admin by Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"adminAccessCode\": \"ABCD1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/loginadminbycode",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "loginadminbycode"]
+            },
+            "description": "Authenticate an admin using the access code flow."
+          }
+        },
+        {
+          "name": "Download Admin Access Code",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/plain"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/admin-access-code",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "admin-access-code"]
+            },
+            "description": "Requires an ADMIN bearer token and returns a downloadable text file with the current access code."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "List Jobs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs?status=ACTIVE&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "ACTIVE"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Browse jobs with optional filters: search, status, companyId, city, country, category, page, and limit."
+          }
+        },
+        {
+          "name": "Get Job Bank",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs/job_bank?status=ACTIVE&page=1&limit=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs", "job_bank"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "ACTIVE"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Public job bank listing with search support via q or search."
+          }
+        },
+        {
+          "name": "Get Job by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs/{{jobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs", "{{jobId}}"]
+            },
+            "description": "Fetch one job by numeric id."
+          }
+        },
+        {
+          "name": "Create Job",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Senior Backend Engineer\",\n  \"description\": \"Build and operate the core APIs powering the ThreadLog platform.\",\n  \"expiresAt\": \"2026-12-31T23:59:59.000Z\",\n  \"webpage_url\": \"https://example.com/jobs/senior-backend-engineer\",\n  \"city\": \"Stockholm\",\n  \"country\": \"Sweden\",\n  \"category\": \"Engineering\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs"]
+            },
+            "description": "Create a job as a company recruiter or admin."
+          }
+        },
+        {
+          "name": "Update Job",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Senior Backend Engineer (Updated)\",\n  \"category\": \"Platform\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs/{{jobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs", "{{jobId}}"]
+            },
+            "description": "Update a job as a company recruiter or admin."
+          }
+        },
+        {
+          "name": "Change Job Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ARCHIVED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs/{{jobId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs", "{{jobId}}", "status"]
+            },
+            "description": "Move a job between ACTIVE and ARCHIVED."
+          }
+        },
+        {
+          "name": "Delete Job",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs/{{jobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs", "{{jobId}}"]
+            },
+            "description": "Delete a job as a company recruiter or admin."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "Apply for Job",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/applications/job/{{jobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "applications", "job", "{{jobId}}"]
+            },
+            "description": "Job seekers apply to a job using the job id in the path."
+          }
+        },
+        {
+          "name": "Get Job Applications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/applications/job/{{jobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "applications", "job", "{{jobId}}"]
+            },
+            "description": "Company recruiters and admins can list all applications for a specific job."
+          }
+        },
+        {
+          "name": "Update Application Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"REVIEWED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/applications/{{applicationId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "applications", "{{applicationId}}", "status"]
+            },
+            "description": "Recruiters and admins can update an application status to PENDING, REVIEWED, ACCEPTED, or REJECTED."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Job Seekers",
+      "item": [
+        {
+          "name": "List Job Seekers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobseekers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobseekers"]
+            },
+            "description": "Public listing of job seekers."
+          }
+        },
+        {
+          "name": "Get Job Seeker by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/jobseekers/{{jobSeekerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobseekers", "{{jobSeekerId}}"]
+            },
+            "description": "Public job seeker profile fetch."
+          }
+        },
+        {
+          "name": "Job Seeker Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/jobseekers/{{jobSeekerId}}/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobseekers", "{{jobSeekerId}}", "dashboard"]
+            },
+            "description": "Protected dashboard endpoint for the job seeker."
+          }
+        },
+        {
+          "name": "Update Job Seeker",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city\": \"Stockholm\",\n  \"country\": \"Sweden\",\n  \"skills\": [\"Node.js\", \"TypeScript\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/jobseekers/{{jobSeekerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobseekers", "{{jobSeekerId}}"]
+            },
+            "description": "Update a job seeker profile."
+          }
+        },
+        {
+          "name": "Delete Job Seeker",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/jobseekers/{{jobSeekerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobseekers", "{{jobSeekerId}}"]
+            },
+            "description": "Delete a job seeker account."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Company Recruiters",
+      "item": [
+        {
+          "name": "List Company Recruiters",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/companyrecruiter",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "companyrecruiter"]
+            },
+            "description": "Public listing of company recruiters."
+          }
+        },
+        {
+          "name": "Get Company Recruiter by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/companyrecruiter/{{companyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "companyrecruiter", "{{companyId}}"]
+            },
+            "description": "Public company recruiter profile fetch."
+          }
+        },
+        {
+          "name": "Update Company Recruiter",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Acme Recruiting AB\",\n  \"city\": \"Stockholm\",\n  \"industry\": \"Technology\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/companyrecruiter/{{companyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "companyrecruiter", "{{companyId}}"]
+            },
+            "description": "Update a company recruiter profile."
+          }
+        },
+        {
+          "name": "Delete Company Recruiter",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/companyrecruiter/{{companyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "companyrecruiter", "{{companyId}}"]
+            },
+            "description": "Delete a company recruiter profile."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Saved",
+      "item": [
+        {
+          "name": "List Saved Jobs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/saved/jobs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "saved", "jobs"]
+            },
+            "description": "List saved jobs for the authenticated job seeker."
+          }
+        },
+        {
+          "name": "Save Job",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/saved/jobs/{{jobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "saved", "jobs", "{{jobId}}"]
+            },
+            "description": "Bookmark a job for the authenticated job seeker."
+          }
+        },
+        {
+          "name": "Unsave Job",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/saved/jobs/{{jobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "saved", "jobs", "{{jobId}}"]
+            },
+            "description": "Remove a saved job."
+          }
+        },
+        {
+          "name": "List Saved Companies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/saved/companies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "saved", "companies"]
+            },
+            "description": "List saved companies for the authenticated job seeker."
+          }
+        },
+        {
+          "name": "Save Company",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/saved/companies/{{companyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "saved", "companies", "{{companyId}}"]
+            },
+            "description": "Bookmark a company for the authenticated job seeker."
+          }
+        },
+        {
+          "name": "Unsave Company",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/saved/companies/{{companyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "saved", "companies", "{{companyId}}"]
+            },
+            "description": "Remove a saved company."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "item": [
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Hi, I have a question about the role.\",\n  \"receiverId\": 2,\n  \"receiverRole\": \"COMPANY_RECRUITER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "messages"]
+            },
+            "description": "Send a direct message as a job seeker or company recruiter."
+          }
+        },
+        {
+          "name": "Received Conversations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages/received",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "messages", "received"]
+            },
+            "description": "List conversation summaries for the authenticated user."
+          }
+        },
+        {
+          "name": "Get Conversation",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages/{{otherUserId}}?role={{conversationRole}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "messages", "{{otherUserId}}"],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "{{conversationRole}}"
+                }
+              ]
+            },
+            "description": "Fetch a message thread with another user. Set conversationRole to JOB_SEEKER or COMPANY_RECRUITER."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Support",
+      "item": [
+        {
+          "name": "Submit Support Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Amina\",\n  \"lastname\": \"Hassan\",\n  \"email\": \"amina.jobseeker@example.com\",\n  \"message\": \"I need help resetting my account access.\",\n  \"sendAsEmail\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/support",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "support"]
+            },
+            "description": "Public support ticket submission. If sendAsEmail is true, the backend also sends the ticket by email."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Workspace",
+      "item": [
+        {
+          "name": "List Announcements",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/workspace/announcements",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workspace", "announcements"]
+            },
+            "description": "Protected workspace announcement feed."
+          }
+        },
+        {
+          "name": "Create Announcement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"Hiring\",\n  \"priority\": \"high\",\n  \"description\": \"We are opening two frontend roles this week.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/workspace/announcements",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workspace", "announcements"]
+            },
+            "description": "Create a workspace announcement."
+          }
+        },
+        {
+          "name": "List Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/workspace/logs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workspace", "logs"]
+            },
+            "description": "Protected workspace logs feed."
+          }
+        },
+        {
+          "name": "Create Log",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Released the new workspace access flow.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/workspace/logs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workspace", "logs"]
+            },
+            "description": "Create a workspace log entry."
+          }
+        },
+        {
+          "name": "List Projects",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/workspace/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workspace", "projects"]
+            },
+            "description": "Protected workspace project feed."
+          }
+        },
+        {
+          "name": "Create Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Employer Dashboard Revamp\",\n  \"description\": \"Improve recruiter onboarding and job management.\",\n  \"objective\": \"Reduce time-to-publish a job.\",\n  \"keyFeature\": \"Inline job draft autosave\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/workspace/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workspace", "projects"]
+            },
+            "description": "Create a workspace project entry."
+          }
+        },
+        {
+          "name": "List Tasks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/workspace/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workspace", "tasks"]
+            },
+            "description": "Protected workspace task feed."
+          }
+        },
+        {
+          "name": "Create Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Prepare Q3 roadmap\",\n  \"objective\": \"Align recruitment and product priorities.\",\n  \"cause\": \"Roadmap planning for the next quarter is due.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/workspace/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workspace", "tasks"]
+            },
+            "description": "Create a workspace task entry."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "authToken",
+      "value": ""
+    },
+    {
+      "key": "currentUserId",
+      "value": ""
+    },
+    {
+      "key": "currentUserRole",
+      "value": ""
+    },
+    {
+      "key": "jobId",
+      "value": "1"
+    },
+    {
+      "key": "applicationId",
+      "value": "1"
+    },
+    {
+      "key": "companyId",
+      "value": "1"
+    },
+    {
+      "key": "jobSeekerId",
+      "value": "1"
+    },
+    {
+      "key": "otherUserId",
+      "value": "2"
+    },
+    {
+      "key": "conversationRole",
+      "value": "COMPANY_RECRUITER"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  }
+}
