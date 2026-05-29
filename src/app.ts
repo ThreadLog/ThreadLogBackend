@@ -11,17 +11,32 @@ import supportRoutes from "./routes/support.routes.js";
 import savedRoutes from "./routes/saved.routes.js";
 import workspaceRoutes from "./routes/workspace.routes.js";
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:4000",
+  "https://threadlog-nine.vercel.app",
+];
+if (process.env.CORS_ORIGIN) {
+  allowedOrigins.push(...process.env.CORS_ORIGIN.split(",").map((s) => s.trim()));
+}
+
 export const createApp = () => {
   const app = express();
 
-  const corsOpts = {
-    origin: true,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-  };
-
-  app.use(cors(corsOpts));
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(null, false);
+        }
+      },
+      credentials: true,
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    }),
+  );
   app.use(express.json());
 
   // job seeker routes
