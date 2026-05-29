@@ -11,18 +11,21 @@ const startServer = async () => {
   try {
     await prisma.$connect();
     console.info("DB CONNECTED");
-
-    const app = createApp();
-
-    startCronJobs();
-    app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
-    });
   } catch (error) {
-    console.error("DB NOT CONNECTED", error);
-    await prisma.$disconnect().catch(() => undefined);
-    process.exit(1);
+    console.warn("DB NOT CONNECTED on startup — server will still start", error);
   }
+
+  const app = createApp();
+
+  try {
+    startCronJobs();
+  } catch {
+    console.warn("Cron jobs failed to start");
+  }
+
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
 };
 
 startServer();

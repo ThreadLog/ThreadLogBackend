@@ -8,7 +8,7 @@
     "dev:services": "docker compose up -d",
     "dev:services:down": "docker compose down",
     "build": "tsc -p tsconfig.json",
-    "start": "prisma migrate deploy && node dist/server.js",
+    "start": "prisma migrate deploy; node dist/server.js",
     "postinstall": "prisma generate",
     "migrate:deploy": "prisma migrate deploy"
   },
@@ -30,6 +30,7 @@
     "node-cron": "^4.2.1",
     "nodemailer": "^8.0.4",
     "pg": "^8.21.0",
+    "prisma": "^7.8.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -42,7 +43,6 @@
     "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^7.0.11",
     "@types/pg": "^8.16.0",
-    "prisma": "^7.8.0",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"

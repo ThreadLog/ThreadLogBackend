@@ -14,7 +14,14 @@ import workspaceRoutes from "./routes/workspace.routes.js";
 export const createApp = () => {
   const app = express();
 
-  app.use(cors());
+  const corsOpts = {
+    origin: true,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  };
+
+  app.use(cors(corsOpts));
   app.use(express.json());
 
   // job seeker routes
