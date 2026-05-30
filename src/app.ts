@@ -28,22 +28,23 @@ export const createApp = () => {
   app.use(
     cors({
       origin: (origin, callback) => {
-        const allowed = [
-          "http://localhost:3000",
-          "https://threadlogbackend-production.up.railway.app",
-        ];
+        if (!origin) return callback(null, true);
 
         if (
-          !origin ||
-          allowed.includes(origin) ||
-          origin.endsWith(".vercel.app")
+          origin.endsWith(".vercel.app") ||
+          origin === "http://localhost:3000" ||
+          origin === "https://threadlogbackend-production.up.railway.app"
         ) {
-          callback(null, true);
-        } else {
-          callback(new Error("Not allowed by CORS"));
+          return callback(null, true);
         }
+
+        return callback(new Error("Not allowed by CORS"));
       },
       credentials: true,
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+      optionsSuccessStatus: 200,
+      preflightContinue: false,
     }),
   );
   app.use(express.json());
