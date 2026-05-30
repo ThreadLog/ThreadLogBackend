@@ -12,10 +12,7 @@ import savedRoutes from "./routes/saved.routes.js";
 import workspaceRoutes from "./routes/workspace.routes.js";
 
 function isOriginAllowed(origin: string): boolean {
-  if (
-    origin === "http://localhost:3000" ||
-    origin === "http://localhost:4000"
-  ) {
+  if (/^http:\/\/localhost:\d+$/.test(origin)) {
     return true;
   }
   if (/^https:\/\/[a-zA-Z0-9-]+\.vercel\.app$/.test(origin)) {
