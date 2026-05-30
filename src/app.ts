@@ -28,23 +28,27 @@ export const createApp = () => {
   app.use(
     cors({
       origin: (origin, callback) => {
+        // Allow no-origin requests (mobile apps, curl, server-side, Railway preflight)
         if (!origin) return callback(null, true);
 
-        if (
-          origin.endsWith(".vercel.app") ||
-          origin === "http://localhost:3000" ||
-          origin === "https://threadlogbackend-production.up.railway.app"
-        ) {
-          return callback(null, true);
-        }
+        // Allow all Vercel preview URLs
+        if (origin.endsWith(".vercel.app")) return callback(null, true);
 
+        // Allow local dev
+        if (origin === "http://localhost:3000") return callback(null, true);
+
+        // Allow backend itself
+        if (origin === "https://threadlogbackend-production.up.railway.app")
+          return callback(null, true);
+
+        // Reject everything else
         return callback(new Error("Not allowed by CORS"));
       },
       credentials: true,
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
-      optionsSuccessStatus: 200,
       preflightContinue: false,
+      optionsSuccessStatus: 200,
     }),
   );
   app.use(express.json());
