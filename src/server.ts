@@ -5,6 +5,13 @@ import { startCronJobs } from "./utils/cronJobs.js";
 
 dotenv.config();
 
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught exception — keeping server alive", err);
+});
+process.on("unhandledRejection", (err) => {
+  console.error("Unhandled rejection — keeping server alive", err);
+});
+
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
@@ -24,7 +31,7 @@ const startServer = async () => {
   }
 
   app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on http://0.0.0.0:${PORT}`);
   });
 };
 

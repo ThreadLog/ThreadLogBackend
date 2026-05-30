@@ -78,5 +78,13 @@ export const createApp = () => {
       timestamp: new Date().toISOString(),
     });
   });
+
+  app.get("/", async (req: Request, res: Response) => {
+    res.status(200).json({
+      status: "running",
+      timestamp: new Date().toISOString(),
+    });
+  });
+
   return app;
 };

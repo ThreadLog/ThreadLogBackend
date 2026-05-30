@@ -4,8 +4,8 @@
     "buildCommand": "npm run build"
   },
   "deploy": {
-    "startCommand": "prisma migrate deploy; node dist/server.js",
-    "healthcheckPath": "/health",
+    "startCommand": "node dist/server.js",
+    "healthcheckPath": "/",
     "healthcheckTimeout": 60
   }
 }

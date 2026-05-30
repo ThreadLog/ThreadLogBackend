@@ -7,8 +7,8 @@
     "dev": "tsx watch src/server.ts",
     "dev:services": "docker compose up -d",
     "dev:services:down": "docker compose down",
-    "build": "tsc -p tsconfig.json",
-    "start": "prisma migrate deploy; node dist/server.js",
+    "build": "prisma migrate deploy && tsc -p tsconfig.json",
+    "start": "node dist/server.js",
     "postinstall": "prisma generate",
     "migrate:deploy": "prisma migrate deploy"
   },
