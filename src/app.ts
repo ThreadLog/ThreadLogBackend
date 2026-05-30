@@ -11,15 +11,21 @@ import supportRoutes from "./routes/support.routes.js";
 import savedRoutes from "./routes/saved.routes.js";
 import workspaceRoutes from "./routes/workspace.routes.js";
 
-const allowedOrigins = [
-  "http://localhost:3000",
-  "http://localhost:4000",
-  "https://threadlog-nine.vercel.app",
-];
-if (process.env.CORS_ORIGIN) {
-  allowedOrigins.push(
-    ...process.env.CORS_ORIGIN.split(",").map((s) => s.trim()),
-  );
+function isOriginAllowed(origin: string): boolean {
+  if (
+    origin === "http://localhost:3000" ||
+    origin === "http://localhost:4000"
+  ) {
+    return true;
+  }
+  if (/^https:\/\/[a-zA-Z0-9-]+\.vercel\.app$/.test(origin)) {
+    return true;
+  }
+  if (process.env.CORS_ORIGIN) {
+    const extras = process.env.CORS_ORIGIN.split(",").map((s) => s.trim());
+    if (extras.includes(origin)) return true;
+  }
+  return false;
 }
 
 export const createApp = () => {
@@ -28,20 +34,11 @@ export const createApp = () => {
   app.use(
     cors({
       origin: (origin, callback) => {
-        // Allow no-origin requests (Railway preflight, mobile apps, curl)
-        if (!origin) return callback(null, true);
-
-        // Allow all Vercel preview URLs
-        if (origin.endsWith(".vercel.app")) return callback(null, true);
-
-        // Allow local dev
-        if (origin === "http://localhost:3000") return callback(null, true);
-
-        // Allow backend itself
-        if (origin === "https://threadlogbackend-production.up.railway.app")
-          return callback(null, true);
-
-        return callback(new Error("Not allowed by CORS"));
+        if (!origin || isOriginAllowed(origin)) {
+          callback(null, true);
+        } else {
+          callback(null, false);
+        }
       },
       credentials: true,
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
