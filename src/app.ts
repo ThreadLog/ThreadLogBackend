@@ -17,7 +17,9 @@ const allowedOrigins = [
   "https://threadlog-nine.vercel.app",
 ];
 if (process.env.CORS_ORIGIN) {
-  allowedOrigins.push(...process.env.CORS_ORIGIN.split(",").map((s) => s.trim()));
+  allowedOrigins.push(
+    ...process.env.CORS_ORIGIN.split(",").map((s) => s.trim()),
+  );
 }
 
 export const createApp = () => {
@@ -26,15 +28,22 @@ export const createApp = () => {
   app.use(
     cors({
       origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        const allowed = [
+          "http://localhost:3000",
+          "https://threadlogbackend-production.up.railway.app",
+        ];
+
+        if (
+          !origin ||
+          allowed.includes(origin) ||
+          origin.endsWith(".vercel.app")
+        ) {
           callback(null, true);
         } else {
-          callback(null, false);
+          callback(new Error("Not allowed by CORS"));
         }
       },
       credentials: true,
-      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     }),
   );
   app.use(express.json());
