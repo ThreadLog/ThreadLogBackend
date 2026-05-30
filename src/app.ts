@@ -28,7 +28,7 @@ export const createApp = () => {
   app.use(
     cors({
       origin: (origin, callback) => {
-        // Allow no-origin requests (mobile apps, curl, server-side, Railway preflight)
+        // Allow no-origin requests (Railway preflight, mobile apps, curl)
         if (!origin) return callback(null, true);
 
         // Allow all Vercel preview URLs
@@ -41,7 +41,6 @@ export const createApp = () => {
         if (origin === "https://threadlogbackend-production.up.railway.app")
           return callback(null, true);
 
-        // Reject everything else
         return callback(new Error("Not allowed by CORS"));
       },
       credentials: true,
@@ -51,6 +50,7 @@ export const createApp = () => {
       optionsSuccessStatus: 200,
     }),
   );
+
   app.use(express.json());
 
   // job seeker routes
