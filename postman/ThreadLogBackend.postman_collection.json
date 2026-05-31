@@ -48,7 +48,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"firstName\": \"Amina\",\n  \"lastName\": \"Hassan\",\n  \"email\": \"amina.jobseeker@example.com\",\n  \"password\": \"Password123!\",\n  \"personalStatement\": \"Open to backend and platform roles.\"\n}"
+              "raw": "{\n  \"firstName\": \"Amina\",\n  \"lastName\": \"Hassan\",\n  \"email\": \"amina.jobseeker@example.com\",\n  \"password\": \"Password123\",\n  \"personalStatement\": \"Open to backend and platform roles.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/registeremployee",
@@ -104,7 +104,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"amina.jobseeker@example.com\",\n  \"password\": \"Password123!\"\n}"
+              "raw": "{\n  \"email\": \"amina.jobseeker@example.com\",\n  \"password\": \"Password123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/loginemployee",
@@ -130,7 +130,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"recruiter@example.com\",\n  \"password\": \"Password123!\",\n  \"companyName\": \"Acme Recruiting AB\",\n  \"organizationNumber\": \"5566778899\",\n  \"phoneNumber\": \"+46 70 123 45 67\",\n  \"description\": \"Hiring engineering and product talent.\",\n  \"logoUrl\": \"https://example.com/logo.png\"\n}"
+              "raw": "{\n  \"email\": \"recruiter@example.com\",\n  \"password\": \"Password123\",\n  \"companyName\": \"Acme Recruiting AB\",\n  \"organizationNumber\": \"5566778899\",\n  \"phoneNumber\": \"+46701234567\",\n  \"description\": \"Hiring engineering and product talent.\",\n  \"logoUrl\": \"https://example.com/logo.png\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/registercompanyrecruiter",
@@ -186,7 +186,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"recruiter@example.com\",\n  \"password\": \"Password123!\"\n}"
+              "raw": "{\n  \"email\": \"recruiter@example.com\",\n  \"password\": \"Password123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/logincompanyrecruiter",
@@ -212,7 +212,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"companyName\": \"ThreadLog HQ\",\n  \"organizationNumber\": \"1122334455\",\n  \"companyPhone\": \"+46 70 987 65 43\",\n  \"companyEmail\": \"admin@example.com\",\n  \"password\": \"Password123!\",\n  \"description\": \"Platform administrator account.\"\n}"
+              "raw": "{\n  \"companyName\": \"ThreadLog HQ\",\n  \"organizationNumber\": \"1122334455\",\n  \"companyPhone\": \"+46709876543\",\n  \"companyEmail\": \"admin@example.com\",\n  \"password\": \"Password123\",\n  \"description\": \"Platform administrator account.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/registeradmin",
@@ -268,7 +268,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Password123!\"\n}"
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Password123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/loginadmin",
@@ -1464,7 +1464,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:3000"
+      "value": "http://localhost:4000"
     },
     {
       "key": "authToken",

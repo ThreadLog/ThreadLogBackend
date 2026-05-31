@@ -27,13 +27,13 @@ import { protect, restrictTo } from "../middleware/auth.middleware.js";
 const router = Router();
 
 router.post(
-  "/registeremployee",
+  "/registerJobSeeker",
   validate(registerJobSeekerValidation),
   RegisterJobSeeker,
 );
 
 router.post(
-  "/loginemployee",
+  "/loginJobSeeker",
   validate(logInJobSeekerValidation),
   LogInJobSeeker,
 );
